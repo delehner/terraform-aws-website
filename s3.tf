@@ -1,5 +1,5 @@
 locals {
-  github_actions_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/github-actions-oidc-role"
+  github_actions_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/github-oidc"
 }
 
 module "deployment" {
