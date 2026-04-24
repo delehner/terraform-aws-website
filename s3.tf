@@ -39,6 +39,20 @@ data "aws_iam_policy_document" "deployment" {
       ]
     }
   }
+
+  statement {
+    sid     = "AllowPublicRead"
+    actions = ["s3:GetObject"]
+
+    resources = [
+      "${module.deployment.arn}/*",
+    ]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+  }
 }
 
 module "edge_deployment" {
