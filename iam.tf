@@ -35,7 +35,7 @@ resource "aws_iam_role_policy_attachment" "application" {
 }
 
 resource "aws_iam_policy" "application" {
-  name   = "${var.application_name}-${var.environment}-policy"
+  name   = "${data.aws_region.current.name}-${var.application_name}-edge-${var.environment}-policy"
   policy = data.aws_iam_policy_document.application.json
 }
 
