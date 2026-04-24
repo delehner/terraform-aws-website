@@ -10,10 +10,6 @@ module "deployment" {
   acl               = "public-read"
   enable_versioning = false
   policy            = data.aws_iam_policy_document.deployment.json
-}
-
-resource "aws_s3_bucket_public_access_block" "deployment" {
-  bucket = "${data.aws_region.current.name}-${var.dns_aliases[0]}"
 
   block_public_acls       = false
   block_public_policy     = false
@@ -53,6 +49,11 @@ module "edge_deployment" {
   acl               = "private"
   enable_versioning = false
   policy            = data.aws_iam_policy_document.edge_deployment.json
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
 
 data "aws_iam_policy_document" "edge_deployment" {
