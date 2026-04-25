@@ -1,3 +1,8 @@
+variable "organization" {
+  type        = string
+  description = "Organization's name."
+}
+
 variable "application_name" {
   type        = string
   description = "Application's name."

@@ -3,7 +3,7 @@ locals {
 }
 
 module "deployment" {
-  source  = "app.terraform.io/denilson-lehner-portfolio/bucket/aws"
+  source  = "app.terraform.io/${var.organization}/bucket/aws"
   version = "0.0.2"
 
   name              = "${data.aws_region.current.name}-${var.dns_aliases[0]}"
@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "deployment" {
 }
 
 module "edge_deployment" {
-  source  = "app.terraform.io/denilson-lehner-portfolio/bucket/aws"
+  source  = "app.terraform.io/${var.organization}/bucket/aws"
   version = "0.0.2"
 
   name              = "${data.aws_region.current.name}-${var.application_name}-edge-${var.environment}"
