@@ -11,7 +11,12 @@ module "website" {
   source  = "app.terraform.io/<organization>/website/aws"
   version = "0.0.1"
 
-  dns_alias = "website-boilerplate-development.example.com"
-  domain    = "example.com"
+  application_name = "website-boilerplate"
+  environment      = "development"
+  dns_aliases      = ["website-boilerplate-development.example.com"]
+  domain           = "example.com"
+
+  # Optional — bind a WAFv2 Web ACL ARN to the CloudFront distribution.
+  web_acl_id = null
 }
 ```

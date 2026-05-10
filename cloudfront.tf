@@ -42,6 +42,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   price_class = var.price_class
+  web_acl_id  = var.web_acl_id
 
   restrictions {
     geo_restriction {

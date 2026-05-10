@@ -1,8 +1,3 @@
-variable "organization" {
-  type        = string
-  description = "Organization's name."
-}
-
 variable "application_name" {
   type        = string
   description = "Application's name."
@@ -93,4 +88,10 @@ variable "concurrent_executions" {
   type        = number
   default     = -1
   description = "Number of Lambda concurrent executions."
+}
+
+variable "web_acl_id" {
+  type        = string
+  default     = null
+  description = "Optional WAFv2 Web ACL ARN to bind to the CloudFront distribution."
 }
