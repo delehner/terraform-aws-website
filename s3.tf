@@ -2,14 +2,44 @@ locals {
   github_actions_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/github-oidc"
 }
 
-module "deployment" {
-  source  = "app.terraform.io/${var.organization}/bucket/aws"
-  version = "0.0.2"
+resource "aws_s3_bucket" "deployment" {
+  bucket = "${data.aws_region.current.name}-${var.dns_aliases[0]}"
 
-  name              = "${data.aws_region.current.name}-${var.dns_aliases[0]}"
-  acl               = "public-read"
-  enable_versioning = false
-  policy            = data.aws_iam_policy_document.deployment.json
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
+}
+
+resource "aws_s3_bucket_policy" "deployment" {
+  bucket = aws_s3_bucket.deployment.id
+  policy = data.aws_iam_policy_document.deployment.json
+}
+
+resource "aws_s3_bucket_ownership_controls" "deployment" {
+  bucket = aws_s3_bucket.deployment.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "deployment" {
+  bucket = aws_s3_bucket.deployment.id
+  acl    = "public-read"
+
+  depends_on = [aws_s3_bucket_ownership_controls.deployment]
+}
+
+resource "aws_s3_bucket_versioning" "deployment" {
+  bucket = aws_s3_bucket.deployment.id
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "deployment" {
+  bucket = aws_s3_bucket.deployment.id
 
   block_public_acls       = false
   block_public_policy     = false
@@ -28,14 +58,14 @@ data "aws_iam_policy_document" "deployment" {
     ]
 
     resources = [
-      "${module.deployment.arn}",
-      "${module.deployment.arn}/*",
+      aws_s3_bucket.deployment.arn,
+      "${aws_s3_bucket.deployment.arn}/*",
     ]
 
     principals {
       type = "AWS"
       identifiers = [
-        "${local.github_actions_role_arn}"
+        local.github_actions_role_arn,
       ]
     }
   }
@@ -45,7 +75,7 @@ data "aws_iam_policy_document" "deployment" {
     actions = ["s3:GetObject"]
 
     resources = [
-      "${module.deployment.arn}/*",
+      "${aws_s3_bucket.deployment.arn}/*",
     ]
 
     principals {
@@ -55,14 +85,44 @@ data "aws_iam_policy_document" "deployment" {
   }
 }
 
-module "edge_deployment" {
-  source  = "app.terraform.io/${var.organization}/bucket/aws"
-  version = "0.0.2"
+resource "aws_s3_bucket" "edge_deployment" {
+  bucket = "${data.aws_region.current.name}-${var.application_name}-edge-${var.environment}"
 
-  name              = "${data.aws_region.current.name}-${var.application_name}-edge-${var.environment}"
-  acl               = "private"
-  enable_versioning = false
-  policy            = data.aws_iam_policy_document.edge_deployment.json
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
+}
+
+resource "aws_s3_bucket_policy" "edge_deployment" {
+  bucket = aws_s3_bucket.edge_deployment.id
+  policy = data.aws_iam_policy_document.edge_deployment.json
+}
+
+resource "aws_s3_bucket_ownership_controls" "edge_deployment" {
+  bucket = aws_s3_bucket.edge_deployment.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "edge_deployment" {
+  bucket = aws_s3_bucket.edge_deployment.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.edge_deployment]
+}
+
+resource "aws_s3_bucket_versioning" "edge_deployment" {
+  bucket = aws_s3_bucket.edge_deployment.id
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "edge_deployment" {
+  bucket = aws_s3_bucket.edge_deployment.id
 
   block_public_acls       = false
   block_public_policy     = false
@@ -81,14 +141,14 @@ data "aws_iam_policy_document" "edge_deployment" {
     ]
 
     resources = [
-      "${module.edge_deployment.arn}",
-      "${module.edge_deployment.arn}/*",
+      aws_s3_bucket.edge_deployment.arn,
+      "${aws_s3_bucket.edge_deployment.arn}/*",
     ]
 
     principals {
       type = "AWS"
       identifiers = [
-        "${local.github_actions_role_arn}"
+        local.github_actions_role_arn,
       ]
     }
   }
