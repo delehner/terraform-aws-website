@@ -1,6 +1,6 @@
 data "archive_file" "dummy_request" {
   type        = "zip"
-  output_path = "./tmp/dummy.zip"
+  output_path = "${path.module}/tmp/dummy_viewer_request.zip"
   source {
     content  = <<EOF
 exports.handler = async (event, context) => {
@@ -16,7 +16,7 @@ EOF
 
 data "archive_file" "dummy_response" {
   type        = "zip"
-  output_path = "./tmp/dummy.zip"
+  output_path = "${path.module}/tmp/dummy_viewer_response.zip"
   source {
     content  = <<EOF
 exports.handler = async (event, context) => {
