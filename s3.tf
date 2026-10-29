@@ -15,6 +15,11 @@ resource "aws_s3_bucket" "deployment" {
 resource "aws_s3_bucket_policy" "deployment" {
   bucket = aws_s3_bucket.deployment.id
   policy = data.aws_iam_policy_document.deployment.json
+
+  # The policy grants public read (Principal "*"). New buckets are created with
+  # Block Public Access enabled, so the block must be lifted first or
+  # PutBucketPolicy fails with AccessDenied.
+  depends_on = [aws_s3_bucket_public_access_block.deployment]
 }
 
 resource "aws_s3_bucket_ownership_controls" "deployment" {
@@ -28,7 +33,12 @@ resource "aws_s3_bucket_acl" "deployment" {
   bucket = aws_s3_bucket.deployment.id
   acl    = "public-read"
 
-  depends_on = [aws_s3_bucket_ownership_controls.deployment]
+  # ACLs require ownership controls other than BucketOwnerEnforced, and a public
+  # ACL requires Block Public Access to be lifted first.
+  depends_on = [
+    aws_s3_bucket_ownership_controls.deployment,
+    aws_s3_bucket_public_access_block.deployment,
+  ]
 }
 
 resource "aws_s3_bucket_versioning" "deployment" {

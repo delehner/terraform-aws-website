@@ -68,8 +68,8 @@ variable "domain" {
 
 variable "application_runtime" {
   type        = string
-  default     = "nodejs18.x"
-  description = "Application runtime."
+  default     = "nodejs22.x"
+  description = "Runtime of the viewer-request and viewer-response Lambda@Edge functions."
 }
 
 variable "lambda_timeout" {
